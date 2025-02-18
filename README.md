@@ -244,7 +244,12 @@ The annotation files are consist of a list of dictionaries, where each item foll
 ]
 ```
 For loading and memory efficiency, we recommend to use `.jsonl` files with [huggingface datasets](https://huggingface.co/docs/datasets/loading) format.
-### Step 2: Prepare training script
+### Step 2: (Optional) Convert HF checkpoint
+If you want to finetune VideoLLaMA3 on your own data using this codebase, please first convert the checkpoints from huggingface to local format. For example:
+```bash
+python scripts/convert_hf_checkpoint.py --model_path DAMO-NLP-SG/VideoLLaMA3-7B --save_path weights/videollama3_7b_local
+```
+### Step 3: Prepare training script
 We provide some templates in `scripts/train` for all stages. You can modify the variables to fit your settings of data and models based on them. For example:
 ```bash
   --data_folder ./datasets \
@@ -252,7 +257,8 @@ We provide some templates in `scripts/train` for all stages. You can modify the 
   --model_path Qwen/Qwen2.5-1.5B-Instruct \
   --vision_encoder DAMO-NLP-SG/SigLIP-NaViT \
 ```
-### Step 3: Start training
+For finetuneing, `--model_path` is the path to the converted checkpoint as described in step 2.
+### Step 4: Start training
 Now you can start training with your training scripts:
 ```bash
 # VideoLLaMA3 Stage 1
