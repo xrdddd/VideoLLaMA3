@@ -23,6 +23,7 @@ from transformers import (AutoConfig, AutoModelForCausalLM, Qwen2Config,
 from transformers.generation.utils import GenerateOutput
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
+from videollama3.constants import IGNORE_INDEX
 from .videollama3_arch import Videollama3MetaForCausalLM, Videollama3MetaModel
 
 
@@ -98,20 +99,56 @@ class Videollama3Qwen2ForCausalLM(Qwen2ForCausalLM, Videollama3MetaForCausalLM):
                 modals=modals,
             )
 
-        return super().forward(
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
+        output_hidden_states = (
+            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+        )
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
+        outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
             past_key_values=past_key_values,
             inputs_embeds=inputs_embeds,
-            labels=labels,
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
             cache_position=cache_position,
-            num_logits_to_keep=num_logits_to_keep,
-            **loss_kwargs,
+        )
+
+        hidden_states = outputs[0]
+
+        loss = None
+        if labels is not None:
+            shift_hidden_states = hidden_states[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
+            mask = shift_labels != IGNORE_INDEX
+            shift_hidden_states = shift_hidden_states[mask]
+            shift_labels = shift_labels[mask]
+            logits = self.lm_head(shift_hidden_states)
+            if "num_items_in_batch" in loss_kwargs:
+                loss = nn.functional.cross_entropy(logits, shift_labels, ignore_index=IGNORE_INDEX, reduction="sum")
+                loss = loss / loss_kwargs["num_items_in_batch"]
+            else:
+                loss = nn.functional.cross_entropy(logits, shift_labels, ignore_index=IGNORE_INDEX)
+
+        else:
+            # Only compute necessary logits, and do not upcast them to float if we are not computing the loss
+            logits = self.lm_head(hidden_states[:, -num_logits_to_keep:, :])
+
+        if not return_dict:
+            output = (logits,) + outputs[1:]
+            return (loss,) + output if loss is not None else output
+
+        return CausalLMOutputWithPast(
+            loss=loss,
+            logits=logits,
+            past_key_values=outputs.past_key_values,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
         )
 
     @torch.no_grad()
