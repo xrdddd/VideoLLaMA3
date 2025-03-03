@@ -63,9 +63,8 @@ torchrun --nnodes $WORLD_SIZE \
     --save_strategy "steps" \
     --save_steps 1000 \
     --save_total_limit 2 \
-    --llm_lr 1e-5 \
-    --mm_projector_lr 1e-5 \
-    --vision_encoder_lr 2e-6 \
+    --mm_projector_lr 1e-3 \
+    --vision_encoder_lr 1e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
