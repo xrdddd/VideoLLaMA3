@@ -38,6 +38,7 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
 
     BENCHMARK_TYPE: str = None
     TASK_TYPES: List[str] = None
+    MODAL: str = None
 
     def __init__(
         self,
@@ -50,29 +51,8 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
     ) -> None:
         assert split_idx < num_splits, f"split_idx ({split_idx}) should be less than num_splits ({num_splits})"
         self.processor = processor
-        self.fps = fps
-        self.max_frames = max_frames
-
         self.data_dict = self.load_data(data_root)
 
-        aggregated_data = dict()
-        for data_id, meta_data in self.data_dict.items():
-            video_path = meta_data["video_path"]
-            start_time = meta_data["start_time"]
-            end_time = meta_data["end_time"]
-            aggregated_data_id = f"{video_path}_{start_time}_{end_time}"
-            if aggregated_data_id not in aggregated_data:
-                aggregated_data[aggregated_data_id] = {
-                    "video_path": video_path,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                    "data_ids": [data_id],
-                }
-            else:
-                aggregated_data[aggregated_data_id]["data_ids"].append(data_id)
-
-        aggregated_data_list = [x for _, x in aggregated_data.items()]
-        self._aggregated_data_list = aggregated_data_list[split_idx::num_splits]
 
     @property
     def n_samples(self) -> int:
@@ -80,63 +60,6 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
 
     def __len__(self) -> int:
         return len(self._aggregated_data_list)
-
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        aggregated_data = self._aggregated_data_list[idx]
-
-        try:
-            frames, timestamps = self.processor.load_video(
-                aggregated_data["video_path"],
-                start_time=aggregated_data["start_time"],
-                end_time=aggregated_data["end_time"],
-                precise_time=True,
-                fps=self.fps,
-                max_frames=self.max_frames,
-            )
-            image_inputs = self.processor.process_images(
-                [frames],
-                merge_size=2,
-                return_tensors="pt"
-            )
-        except:
-            traceback.print_exc()
-            print(f"Failed to load video: {aggregated_data}")
-            exit()
-
-        text_inputs = []
-        for data_id in aggregated_data["data_ids"]:
-            instruction = self.generate_instruction(data_id, timestamps)
-            conversation = [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "video",
-                            "num_frames": len(timestamps),
-                            "timestamps": timestamps,
-                        },
-                        {"type": "text", "text": instruction},
-                    ],
-                }
-            ]
-            prompt = self.processor.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
-            text_inputs.append(
-                self.processor.process_text(
-                    prompt,
-                    image_inputs,
-                    padding=False,
-                    padding_side=None,
-                    return_tensors="pt"
-                )
-            )
-
-        data = {
-            "data_ids": aggregated_data["data_ids"],
-            "image_inputs": image_inputs,
-            "text_inputs": text_inputs,
-        }
-
-        return data
 
     @abstractmethod
     def load_data(self, data_root) -> Dict[Union[int, str], Any]:
@@ -169,7 +92,7 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def generate_instruction(self, data_id: Union[int, str], timestamps: List[float]) -> Union[str, Dict[str, str]]:
+    def generate_instruction(self, data_id: Union[int, str]) -> Union[str, Dict[str, str]]:
         """
         Generate instruction(s) for model inference.
 
@@ -340,3 +263,152 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
 
         infos = [metrics] + infos
         return metrics, infos
+
+
+class BaseImageEvalDataset(BaseEvalDataset):
+    
+    MODAL: str = "image"
+    
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        aggregated_data = dict()
+        for data_id, meta_data in self.data_dict.items():
+            image_path = meta_data["image_path"]
+            if image_path not in aggregated_data:
+                aggregated_data[image_path] = {
+                    "image_path": image_path,
+                    "data_ids": [data_id],
+                }
+            else:
+                aggregated_data[image_path]["data_ids"].append(data_id)
+
+        aggregated_data_list = [x for _, x in aggregated_data.items()]
+        self._aggregated_data_list = aggregated_data_list[kwargs["split_idx"]::kwargs["num_splits"]]
+        
+    def __getitem__(self, idx: int) -> Dict[str, Any]:
+        aggregated_data = self._aggregated_data_list[idx]
+        
+        try:
+            images = self.processor.load_images(aggregated_data["image_path"])
+            image_inputs = self.processor.process_images(images, merge_size=1, return_tensors="pt")
+        except:
+            traceback.print_exc()
+            print(f"Failed to load image: {aggregated_data}")
+            exit()
+            
+        text_inputs = []
+        for data_id in aggregated_data["data_ids"]:
+            instruction = self.generate_instruction(data_id)
+            content = [{"type": "image"}] * (len(aggregated_data["image_path"]) if isinstance(aggregated_data["image_path"], list) else 1)
+            conversation = [
+                # {"role": "system", "content": "You are a helpful assistant."},
+                {
+                    "role": "user",
+                    "content": content + [{"type": "text", "text": instruction}],
+                }
+            ]
+            prompt = self.processor.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
+            text_inputs.append(
+                self.processor.process_text(
+                    prompt, 
+                    image_inputs, 
+                    padding=False,
+                    padding_side=None,
+                    return_tensors="pt"
+                )
+            )
+
+        data = {
+            "data_ids": aggregated_data["data_ids"],
+            "image_inputs": image_inputs,
+            "text_inputs": text_inputs,
+        }
+
+        return data
+        
+        
+class BaseVideoEvalDataset(BaseEvalDataset):
+    
+    MODAL: str = "video"
+    
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fps = kwargs["fps"]
+        self.max_frames = kwargs["max_frames"]
+
+        aggregated_data = dict()
+        for data_id, meta_data in self.data_dict.items():
+            video_path = meta_data["video_path"]
+            start_time = meta_data["start_time"]
+            end_time = meta_data["end_time"]
+            aggregated_data_id = f"{video_path}_{start_time}_{end_time}"
+            if aggregated_data_id not in aggregated_data:
+                aggregated_data[aggregated_data_id] = {
+                    "video_path": video_path,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "data_ids": [data_id],
+                }
+            else:
+                aggregated_data[aggregated_data_id]["data_ids"].append(data_id)
+
+        aggregated_data_list = [x for _, x in aggregated_data.items()]
+        self._aggregated_data_list = aggregated_data_list[kwargs["split_idx"]::kwargs["num_splits"]]
+
+    def __getitem__(self, idx: int) -> Dict[str, Any]:
+        aggregated_data = self._aggregated_data_list[idx]
+
+        try:
+            frames, timestamps = self.processor.load_video(
+                aggregated_data["video_path"],
+                start_time=aggregated_data["start_time"],
+                end_time=aggregated_data["end_time"],
+                precise_time=True,
+                fps=self.fps,
+                max_frames=self.max_frames,
+            )
+            image_inputs = self.processor.process_images(
+                [frames],
+                merge_size=2,
+                return_tensors="pt"
+            )
+        except:
+            traceback.print_exc()
+            print(f"Failed to load video: {aggregated_data}")
+            exit()
+
+        text_inputs = []
+        for data_id in aggregated_data["data_ids"]:
+            instruction = self.generate_instruction(data_id, timestamps)
+            conversation = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "video",
+                            "num_frames": len(timestamps),
+                            "timestamps": timestamps,
+                        },
+                        {"type": "text", "text": instruction},
+                    ],
+                }
+            ]
+            prompt = self.processor.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
+            text_inputs.append(
+                self.processor.process_text(
+                    prompt,
+                    image_inputs,
+                    padding=False,
+                    padding_side=None,
+                    return_tensors="pt"
+                )
+            )
+
+        data = {
+            "data_ids": aggregated_data["data_ids"],
+            "image_inputs": image_inputs,
+            "text_inputs": text_inputs,
+        }
+
+        return data

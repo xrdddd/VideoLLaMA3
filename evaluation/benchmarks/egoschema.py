@@ -7,10 +7,10 @@ import requests
 from copy import deepcopy
 from typing import Any, Dict, List, Union
 
-from .base import BaseEvalDataset, filter_metadata
+from .base import BaseVideoEvalDataset, filter_metadata
 
 
-class EgoSchemaDataset(BaseEvalDataset):
+class EgoSchemaDataset(BaseVideoEvalDataset):
 
     def load_data(self, data_root: str) -> Dict[int, Any]:
         data_dict = {}

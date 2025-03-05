@@ -12,6 +12,20 @@ from .perception_test import PerceptionTestDataset
 from .tempcompass import TempCompassDataset
 from .videomme import VideoMMEDataset
 
+from .ai2d import AI2DDataset
+from .chartqa import ChartQADataset
+from .docvqa import DocVQADataset
+from .mathvista import MathVistaDataset
+from .mmmu import MMMUDataset
+from .ocrbench import OCRBenchDataset
+from .gqa import GQADataset
+from .mmmupro import MMMUProDataset
+from .realworldqa import RealWorldQADataset
+from .blink import BLINKDataset
+from .mme import MMEDataset
+from .infovqa import InfoVQADataset
+from .mathverse import MathVerseDataset
+from .mathvision import MathVisionDataset
 
 DATASET_REGISTRY = {
     "videomme": VideoMMEDataset,
@@ -26,6 +40,20 @@ DATASET_REGISTRY = {
     "tempcompass": TempCompassDataset,
     "nextqa": NextQADataset,
     "charades_sta": CharadesSTADataset,
+    "AI2D": AI2DDataset,
+    "ChartQA": ChartQADataset,
+    "DocVQA": DocVQADataset,
+    "MathVista": MathVistaDataset,
+    "MMMU": MMMUDataset,
+    "OCRBench": OCRBenchDataset,
+    "GQA": GQADataset,
+    "MMMU_Pro": MMMUProDataset,
+    "RealWorldQA": RealWorldQADataset,
+    "BLINK": BLINKDataset,
+    "MME": MMEDataset,
+    "InfoVQA": InfoVQADataset,
+    "MathVerse": MathVerseDataset,
+    "MathVision": MathVisionDataset,
 }
 
 

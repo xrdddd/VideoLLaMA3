@@ -5,10 +5,10 @@ from typing import Dict, Any, Union
 
 import pandas as pd
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 
-class NextQADataset(BaseEvalDataset):
+class NextQADataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
 

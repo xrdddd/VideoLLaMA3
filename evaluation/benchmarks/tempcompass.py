@@ -11,7 +11,7 @@ import pyarrow.parquet as pq
 from openai import AzureOpenAI
 from tqdm import tqdm
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 endpoint = os.getenv("ENDPOINT_URL")
 deployment = os.getenv("DEPLOYMENT_NAME", "gpt-35-turbo-0613")
@@ -108,7 +108,7 @@ def prompt_gpt(client, prompt):
         return prediction_answer[0].split("Answer:")[1].strip()
 
 
-class TempCompassDataset(BaseEvalDataset):
+class TempCompassDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
     TASK_TYPES: List[str] = ["action", "direction", "speed", "order", "attribute_change"]
