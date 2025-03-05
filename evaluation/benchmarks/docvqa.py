@@ -13,7 +13,7 @@ from .base import BaseImageEvalDataset, filter_metadata
 
 class DocVQADataset(BaseImageEvalDataset):
     def load_data(self, data_root: str) -> Dict[int, Any]:
-        self.set = "test"
+        self.set = "val"
         data_dict = {}
 
         json_file = os.path.join(data_root, f"{self.set}.jsonl")
