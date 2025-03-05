@@ -229,17 +229,6 @@ class BaseEvalDataset(Dataset, metaclass=ABCMeta):
             metrics (Dict[str, float]): evaluation metrics.
             infos (List[Dict[str, Any]]): evaluation information for visualization.
         """
-    def _eval_mcqa(self, results: List[Dict[str, Any]]) -> (Dict[str, float], List[Dict[str, Any]]):
-        """
-        Compute the evaluation metrics for multiple-choice question answering tasks.
-
-        Args:
-            results (List[Dict[str, Any]]): list of processed model responses.
-
-        Returns:
-            metrics (Dict[str, float]): evaluation metrics.
-            infos (List[Dict[str, Any]]): evaluation information for visualization.
-        """
         if self.TASK_TYPES is None:
             samples = defaultdict(list)
         else:
