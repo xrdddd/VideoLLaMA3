@@ -280,7 +280,7 @@ class LazySupervisedDataset(Dataset):
                         if modal == 'image':
                             messages[-1]["content"].append({"type": "image"})
                         elif modal == 'video':
-                            messages[-1]["content"].append({"type": "video", "num_frames": len(images[0]), "time": timestamps})
+                            messages[-1]["content"].append({"type": "video", "num_frames": len(images[0]), "timestamps": timestamps})
             else:
                 messages.append({
                     "role": "assistant",
@@ -323,7 +323,7 @@ class LazySupervisedDataset(Dataset):
             while frame_idx < len(timestamps) and timestamps[frame_idx] <= message["time"]:
                 messages.append({
                     "role": "stream",
-                    "content": [{"type": "image", "time": timestamps[frame_idx] - data_dict["start_time"]}],
+                    "content": [{"type": "image", "timestamps": timestamps[frame_idx] - data_dict["start_time"]}],
                 })
                 frame_idx += 1
 
