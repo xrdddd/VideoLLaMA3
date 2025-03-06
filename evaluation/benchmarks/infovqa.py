@@ -15,25 +15,25 @@ class InfoVQADataset(BaseImageEvalDataset):
     def load_data(self, data_root: str) -> Dict[int, Any]:
         self.set = "val"
         if self.set == "val":
-            json_file = "infographicsVQA_test_v1.0.json"
-        else:
             json_file = "infographicsVQA_val_v1.0_withQT.json"
+        else:
+            json_file = "infographicsVQA_test_v1.0.json"
         data_dict = {}
 
         json_file = os.path.join(data_root, json_file)
         with open(json_file, 'r') as f:
-            data_list = json.load(f)
+            data_list = json.load(f)['data']
 
         for data in data_list:
-            question_id = data["question_id"]
-            image_path = os.path.join(data_root, data['image'])
+            question_id = data["questionId"]
+            image_path = os.path.join(data_root, "images", data['image_local_name'])
             assert os.path.exists(image_path), f"Cannot find the image file: {image_path}"
                             
             data_dict[question_id] = {
                 # required fields for data loading
                 "image_path": image_path,
                 # required fields for evaluation
-                "ground_truth": data["answer"] if self.set=="val" else None,
+                "ground_truth": data["answers"] if self.set=="val" else None,
                 "task_type": "val",
                 # custom fields for instruction generation and post processing
                 "question": data["question"],
