@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Union
 
 from openai import AzureOpenAI
 
-from .base import BaseEvalDataset, filter_metadata
+from .base import BaseVideoEvalDataset, filter_metadata
 
 MULTI_CHOICE_COT_PROMPT = """
 Question: {question}
@@ -63,7 +63,7 @@ class EvaluationOutput(BaseModel):
     correct: bool
 
 
-class MMVUDataset(BaseEvalDataset):
+class MMVUDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
 

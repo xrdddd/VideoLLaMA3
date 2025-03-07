@@ -7,10 +7,10 @@ import requests
 from copy import deepcopy
 from typing import Any, Dict, List, Union
 
-from .base import BaseEvalDataset, filter_metadata
+from .base import BaseVideoEvalDataset, filter_metadata
 
 
-class CharadesSTADataset(BaseEvalDataset):
+class CharadesSTADataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "temporal_grounding"
 

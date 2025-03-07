@@ -8,7 +8,7 @@ import numpy as np
 import pyarrow.parquet as pq
 import pysubs2
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 from videollama3.mm_utils import load_video
 
 
@@ -80,7 +80,7 @@ def insert_subtitles_into_frames(frames, frame_timestamps, subtitles,
     return interleaved_list
 
 
-class LongVideoBenchDataset(BaseEvalDataset):
+class LongVideoBenchDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
 

@@ -3,7 +3,7 @@ import os
 import re
 from typing import Any, Dict, List, Union
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 
 MCQA_TASKS = {
@@ -22,7 +22,7 @@ OQA_TASKS = {
 }
 
 
-class MLVUDataset(BaseEvalDataset):
+class MLVUDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
     TASK_TYPES: List[str] = [task_type for task_type in MCQA_TASKS]

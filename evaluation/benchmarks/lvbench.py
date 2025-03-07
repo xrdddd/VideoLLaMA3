@@ -3,10 +3,10 @@ import os
 import re
 from typing import Any, Dict, Union
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 
-class LVBenchDataset(BaseEvalDataset):
+class LVBenchDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
 

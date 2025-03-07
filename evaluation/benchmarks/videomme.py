@@ -7,10 +7,10 @@ from typing import Any, Dict, List, Union
 import pyarrow.parquet as pq
 import pysubs2
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 
-class VideoMMEDataset(BaseEvalDataset):
+class VideoMMEDataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "mcqa"
 

@@ -8,10 +8,10 @@ from copy import deepcopy
 from collections import defaultdict
 from typing import Any, Dict, List, Union
 
-from .base import BaseEvalDataset, filter_metadata
+from .base import BaseVideoEvalDataset, filter_metadata
 
 
-class PerceptionTestDataset(BaseEvalDataset):
+class PerceptionTestDataset(BaseVideoEvalDataset):
 
     def load_data(self, data_root: str) -> Dict[int, Any]:
         data_dict = {}

@@ -13,7 +13,7 @@ import pyarrow.parquet as pq
 from openai import AzureOpenAI
 from tqdm import tqdm
 
-from .base import BaseEvalDataset
+from .base import BaseVideoEvalDataset
 
 endpoint = os.getenv("ENDPOINT_URL")  
 deployment = os.getenv("DEPLOYMENT_NAME")  
@@ -80,7 +80,7 @@ def prompt_gpt(client, question, answer, pred, messages_template):
     return response_message
 
 
-class ActivitynetQADataset(BaseEvalDataset):
+class ActivitynetQADataset(BaseVideoEvalDataset):
 
     BENCHMARK_TYPE: str = "oqa"
 

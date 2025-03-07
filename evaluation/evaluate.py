@@ -96,6 +96,7 @@ def main():
         collate_fn=lambda x: x[0],  # asume the batch_size is always 1
         pin_memory=True,
     )
+    modal = dataset.MODAL
 
     results = []
     for idx, data in enumerate(tqdm(dataloader, desc=f"Rank {global_rank}", total=len(dataloader), position=local_rank)):
@@ -108,7 +109,7 @@ def main():
                     data_dict,
                     model=model,
                     tokenizer=processor.tokenizer,
-                    modal="video",
+                    modal=modal,
                     do_sample=False,
                 )
                 prediction = dataset.process_response(data_id, response)
