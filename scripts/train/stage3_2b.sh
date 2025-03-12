@@ -52,6 +52,7 @@ torchrun --nnodes $WORLD_SIZE \
     --max_frames 180 \
     --model_max_length 16384 \
     --mm_max_length 10240 \
+    --use_token_compression True \
     --bf16 True \
     --tf32 True \
     --fp16 False \
