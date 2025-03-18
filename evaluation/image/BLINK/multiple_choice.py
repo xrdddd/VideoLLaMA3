@@ -4,11 +4,6 @@ import time
 import openai
 from openai import AzureOpenAI
 
-# set the environment variables
-os.environ["AZURE_OPENAI_ENDPOINT"] = "https://vl-australiaeast.openai.azure.com"
-os.environ["AZURE_OPENAI_KEY"] = "f68a11a54a064caa851e290258d52cce"
-os.environ["AZURE_OPENAI_DEPLOYNAME"] = "gpt35-turbo-0613"
-
 client = AzureOpenAI(
         azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"), 
         api_key=os.getenv("AZURE_OPENAI_KEY"),  
