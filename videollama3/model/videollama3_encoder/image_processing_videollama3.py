@@ -108,7 +108,7 @@ def simple_batched_resize(
         if is_valid_video(image):
             image = image[0]
         if isinstance(image, Image.Image):
-            height, width = image.size
+            width, height = image.size
         else:
             height, width = get_image_size(image, channel_dim=input_data_format)
         image_sizes.append([height, width])
@@ -142,7 +142,7 @@ def batched_resize(
         else:
             num_frame = 1
         if isinstance(image, Image.Image):
-            height, width = image.size
+            width, height = image.size
         else:
             height, width = get_image_size(image, channel_dim=input_data_format)
         image_sizes.append([num_frame, height, width])
