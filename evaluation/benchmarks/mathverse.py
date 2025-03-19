@@ -102,6 +102,8 @@ class MathVerseDataset(BaseImageEvalDataset):
             data_list = json.load(f)
 
         for data in data_list:
+            if data["problem_version"] != "Vision Only":
+                continue
             question_id = data["sample_index"]
             image_path = os.path.join(data_root, "images", data['image'])
             assert os.path.exists(image_path), f"Cannot find the image file: {image_path}"
