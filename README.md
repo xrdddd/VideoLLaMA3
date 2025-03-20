@@ -266,6 +266,12 @@ bash scripts/train/stage1_2b.sh
 # VideoLLaMA3 Stage 2
 bash scripts/train/stage2_2b.sh
 ```
+### Some tips about CUDA OOM error:
+- Please try the latest main branch, where we optimize the memory consumption in [this commit](https://github.com/DAMO-NLP-SG/VideoLLaMA3/commit/21268660a67c115c6d6c6620780515626193af0f).
+- Try DeepSpeed [ZeRO-2/3](https://huggingface.co/docs/transformers/deepspeed) by passing `--deepspeed scripts/zero2.json / zero3.json`.
+- Reduce the max number of visual tokens (high-resolution images and videos will be automatically downsampled to fit this length) and max length of sequences (sequences longer than this will be truncated) by setting `--mm_max_length` and `--model_max_length`, respectively.
+- Reduce the local batch size, i.e., `LOCAL_BATCH_SIZE` in the training script.
+You can adjust the above hyperparameters according to the available GPU memory and number of GPUs to make the training fits your hardware.
 
 
 ## ✅ Evaluation
