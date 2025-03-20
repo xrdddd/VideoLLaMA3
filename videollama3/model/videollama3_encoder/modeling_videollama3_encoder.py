@@ -343,7 +343,7 @@ class VisionSdpaAttention(VisionAttention):
         attn_output = F.scaled_dot_product_attention(query_states, key_states, value_states, attention_mask, dropout_p=0.0)
         attn_output = attn_output.transpose(0, 1)
         attn_output = attn_output.reshape(seq_length, -1)
-        attn_output = self.proj(attn_output)
+        attn_output = self.out_proj(attn_output)
         return attn_output
 
 
