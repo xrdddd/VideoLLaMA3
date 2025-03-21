@@ -24,6 +24,7 @@ class CUDADataLoader(DataLoader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.thread = None
         self.stream = torch.cuda.Stream() # create a new cuda stream in each process
         self.queue = queue.Queue(64)
 
@@ -67,11 +68,12 @@ class CUDADataLoader(DataLoader):
 
     def __del__(self):
         # NOTE: clean up the thread
-        try:
-            self.thread.join(timeout=10)
-        finally:
-            if self.thread.is_alive():
-                self.thread._stop()
+        if self.thread is not None:
+            try:
+                self.thread.join(timeout=10)
+            finally:
+                if self.thread.is_alive():
+                    self.thread._stop()
         # NOTE: clean up the stream
         self.stream.synchronize()
         # NOTE: clean up the queue
