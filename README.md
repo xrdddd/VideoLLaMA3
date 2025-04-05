@@ -272,6 +272,7 @@ bash scripts/train/stage2_2b.sh
 - Reduce the max number of visual tokens (high-resolution images and videos will be automatically downsampled to fit this length) and max length of sequences (sequences longer than this will be truncated) by setting `--mm_max_length` and `--model_max_length`, respectively.
 - Reduce the local batch size, i.e., `LOCAL_BATCH_SIZE` in the training script.
 You can adjust the above hyperparameters according to the available GPU memory and number of GPUs to make the training fits your hardware.
+- **(New!)** If you still encounter memory issues after using the above tricks, you can try using an **experimental** feature by setting `--use_flash_loss True` in your training script. Specifically, it uses a tile-based CE implementation proposed in [Inf-CL](https://github.com/DAMO-NLP-SG/Inf-CLIP) to reduce the memory consumption, which is very helpful when training models with long context or large vocabulary!
 
 
 ## ✅ Evaluation

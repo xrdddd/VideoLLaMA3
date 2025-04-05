@@ -121,19 +121,54 @@ class Videollama3Qwen2ForCausalLM(Qwen2ForCausalLM, Videollama3MetaForCausalLM):
 
         hidden_states = outputs[0]
 
-        loss = None
+        loss, logits = None, None
         if labels is not None:
             shift_hidden_states = hidden_states[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             mask = shift_labels != IGNORE_INDEX
             shift_hidden_states = shift_hidden_states[mask]
             shift_labels = shift_labels[mask]
-            logits = self.lm_head(shift_hidden_states)
+
             if "num_items_in_batch" in loss_kwargs:
-                loss = nn.functional.cross_entropy(logits, shift_labels, ignore_index=IGNORE_INDEX, reduction="sum")
-                loss = loss / loss_kwargs["num_items_in_batch"]
+                reduction = "sum"
+                num_items_in_batch = loss_kwargs["num_items_in_batch"]
             else:
-                loss = nn.functional.cross_entropy(logits, shift_labels, ignore_index=IGNORE_INDEX)
+                reduction = "mean"
+                num_items_in_batch = None
+
+            if getattr(self.config, "use_flash_loss", False):
+                try:
+                    from inf_cl.flash import FlashProb
+                except ImportError:
+                    raise ImportError(
+                        "inf_cl is not installed. Please install it following https://github.com/DAMO-NLP-SG/Inf-CLIP."
+                    )
+
+                hidden_size = shift_hidden_states.size(-1)
+                assert hidden_size % 256 == 0, f"hidden size ({hidden_size}) should be divisible by 256 when using flash loss"
+
+                shift_hidden_states = shift_hidden_states.float()
+                weight = self.lm_head.weight.float()
+
+                lse = FlashProb.apply(
+                    shift_hidden_states.reshape(shift_hidden_states.size(0), -1, 256),
+                    weight.reshape(self.lm_head.weight.size(0), -1, 256),
+                )
+                numerator = torch.einsum("nd,nd->n", shift_hidden_states, weight[shift_labels])
+
+                acc_op = torch.sum if reduction == "sum" else torch.mean
+                loss = acc_op(-numerator + lse)
+
+            else:
+                shift_logits = self.lm_head(shift_hidden_states)
+                loss = torch.nn.functional.cross_entropy(
+                    shift_logits,
+                    shift_labels,
+                    reduction=reduction,
+                )
+
+            if num_items_in_batch is not None:
+                loss = loss / num_items_in_batch
 
         else:
             # Only compute necessary logits, and do not upcast them to float if we are not computing the loss

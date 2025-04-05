@@ -98,6 +98,7 @@ class ModelArguments:
     mm_attn_implementation: Optional[str] = field(default="flash_attention_2")
     # Token downsampling Arguments
     use_token_compression: Optional[bool] = field(default=False)
+    use_flash_loss: Optional[bool] = field(default=False)
 
 
 @dataclass
@@ -513,6 +514,7 @@ def train(attn_implementation=None):
 
     config._attn_implementation = attn_implementation
     config.use_token_compression = model_args.use_token_compression
+    config.use_flash_loss = model_args.use_flash_loss
 
     if model_args.vision_encoder is not None:
         config.vision_encoder = model_args.vision_encoder
