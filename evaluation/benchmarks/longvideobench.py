@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import traceback
 from copy import deepcopy
 from typing import Any, Dict, List, Union
 
@@ -151,13 +152,12 @@ class LongVideoBenchDataset(BaseVideoEvalDataset):
                     content_list.append(
                         {
                             "type": "video",
-                            "data": cur_frames,
                             "num_frames": len(cur_frames),
                             "timestamps": timestamps[frame_idx-len(cur_frames):frame_idx]
                         }
                     )
                     cur_frames = []
-                content_list.append({"type": "text", "data": ele})
+                content_list.append({"type": "text", "text": ele})
 
             elif isinstance(ele, np.ndarray):
                 cur_frames.append(ele)
@@ -170,39 +170,46 @@ class LongVideoBenchDataset(BaseVideoEvalDataset):
             }
         ]
 
-        inputs = self.processor(conversation=conversation, return_tensors="pt"),
-
-        # reduce batch dimension
-        inputs = inputs[0]
-
-        text_inputs  = {"input_ids": inputs["input_ids"], "attention_mask": inputs["attention_mask"]}
-        # image_inputs = {"images": inputs["images"], "grid_sizes": inputs["grid_sizes"]}
-        image_inputs = {"pixel_values_videos": inputs["pixel_values_videos"], "video_grid_thw": inputs["video_grid_thw"]}
-
-        return text_inputs, image_inputs
+        return conversation
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         aggregated_data = self._aggregated_data_list[idx]
 
-        frames, timestamps = self.processor.load_video(
-            aggregated_data["video_path"],
-            start_time=aggregated_data["start_time"],
-            end_time=aggregated_data["end_time"],
-            precise_time=True,
-            fps=self.fps,
-            max_frames=self.max_frames,
-        )
-
-        image_inputs = None
+        try:
+            frames, timestamps = self.processor.load_video(
+                aggregated_data["video_path"],
+                start_time=aggregated_data["start_time"],
+                end_time=aggregated_data["end_time"],
+                precise_time=True,
+                fps=self.fps,
+                max_frames=self.max_frames,
+            )
+            image_inputs = self.processor.process_images(
+                [frames],
+                merge_size=2,
+                return_tensors="pt"
+            )
+        except:
+            traceback.print_exc()
+            print(f"Failed to load video: {aggregated_data}")
+            exit()
 
         text_inputs = []
         for data_id in aggregated_data["data_ids"]:
             meta_data = self.data_dict[data_id]
             subtitle = meta_data["subtitle"]
             video_text_interleave_list = insert_subtitles_into_frames(frames, timestamps, subtitle, meta_data["starting_timestamp_for_subtitles"], meta_data["duration"])
-            text_input, image_input = self.generate_instruction(data_id, video_text_interleave_list, timestamps)
-            text_inputs.append(text_input)
-            image_inputs = image_input
+            conversation = self.generate_instruction(data_id, video_text_interleave_list, timestamps)
+            prompt = self.processor.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True)
+            text_inputs.append(
+                self.processor.process_text(
+                    prompt,
+                    image_inputs,
+                    padding=False,
+                    padding_side=None,
+                    return_tensors="pt"
+                )
+            )
 
         data = {
             "data_ids": aggregated_data["data_ids"],
