@@ -359,7 +359,7 @@ class LazySupervisedDataset(Dataset):
             elif modal == 'image' or modal == 'video':
                 assert len(data_dict['pixel_values']) > 0 and len(data_dict['grid_sizes']) > 0, f"Invalid image data: {data_dict['images']}, {data_dict['grid_thws']}"
 
-            data_dict['modals'] = [modal]
+            data_dict['modals'] = [modal] * len(images)
 
         except Exception as e:
             traceback.print_exc()
