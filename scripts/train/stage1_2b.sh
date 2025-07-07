@@ -22,7 +22,7 @@ echo "NPROC_PER_NODE: $NPROC_PER_NODE"
 
 # Training Arguments
 GLOBAL_BATCH_SIZE=128
-LOCAL_BATCH_SIZE=2
+LOCAL_BATCH_SIZE=1
 GRADIENT_ACCUMULATION_STEPS=$[$GLOBAL_BATCH_SIZE/($WORLD_SIZE*$NPROC_PER_NODE*$LOCAL_BATCH_SIZE)]
 echo $GRADIENT_ACCUMULATION_STEPS
 
@@ -92,7 +92,7 @@ torchrun --nnodes $WORLD_SIZE \
     --fps 1 \
     --max_frames 180 \
     --model_max_length 6000 \
-    --mm_max_length 10240 \
+    --mm_max_length 6000 \
     --bf16 True \
     --tf32 False \
     --fp16 False \

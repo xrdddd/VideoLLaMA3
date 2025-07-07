@@ -136,7 +136,7 @@ class DataArguments:
     # Preprocess Arguments
     image_merge_size: Optional[int] = field(default=1)
     video_merge_size: Optional[int] = field(default=1)
-    mm_max_length: Optional[int] = field(default=10240)
+    mm_max_length: Optional[int] = field(default=6000)
     image_aspect_ratio: str = "square"
     use_batch_flattening: bool = field(
         default=True,
