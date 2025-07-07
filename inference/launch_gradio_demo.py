@@ -5,8 +5,8 @@ import argparse
 import subprocess
 from threading import Thread
 
-from inference.interface import VideoLLaMA3GradioInterface
-from inference.server import VideoLLaMA3PlainClient
+from interface import VideoLLaMA3GradioInterface
+from server import VideoLLaMA3PlainClient
 
 
 if __name__ == "__main__":
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     model_client = VideoLLaMA3PlainClient(port=args.server_port)
     interface = VideoLLaMA3GradioInterface(
         model_client,
-        example_dir="./assets",
+        example_dir="/teamspace/studios/this_studio/raw_res/LLaVA-OneVision-Data",
         server_name="0.0.0.0",
         server_port=args.interface_port,
     )
