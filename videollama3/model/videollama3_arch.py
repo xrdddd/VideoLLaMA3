@@ -56,7 +56,7 @@ class Videollama3MetaModel:
         super(Videollama3MetaModel, self).__init__(config)
 
         if hasattr(config, "vision_encoder") or hasattr(config, "mm_vision_encoder"):
-            self.vision_encoder = build_vision_encoder(config, delay_load=False)
+            self.vision_encoder = build_vision_encoder(config, delay_load=True)
             self.mm_projector = build_vision_projector(config, self.vision_encoder.hidden_size)
 
     def get_vision_encoder(self):
@@ -77,7 +77,7 @@ class Videollama3MetaModel:
         self.config.mm_vision_encoder = vision_encoder
 
         if self.get_vision_encoder() is None:
-            vision_encoder = build_vision_encoder(model_args)
+            vision_encoder = build_vision_encoder(model_args, delay_load=True)
 
             if fsdp is not None and len(fsdp) > 0:
                 self.vision_encoder = [vision_encoder]

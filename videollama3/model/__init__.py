@@ -45,7 +45,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
     kwargs = {"device_map": device_map, **kwargs}
 
     config = AutoConfig.from_pretrained(model_path)
-    config._attn_implementation = kwargs.pop('attn_implementation', "flash_attention_2") # default to flash_attention_2
+    config._attn_implementation = kwargs.pop('attn_implementation', "sdpa") # default to flash_attention_2
 
     torch_dtype = config.torch_dtype if hasattr(config, "torch_dtype") else kwargs.pop('torch_dtype', torch.float16)
 

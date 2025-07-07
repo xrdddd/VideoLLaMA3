@@ -103,7 +103,7 @@ class CLIPVisionEncoder(nn.Module):
 
 class SiglipVisionEncoder(nn.Module):
 
-    def __init__(self, vision_encoder, args, delay_load=False):
+    def __init__(self, vision_encoder, args, delay_load=True):
         super().__init__()
 
         self.is_loaded = False
@@ -202,12 +202,12 @@ class Videollama3VisionEncoder(nn.Module):
 
         if not delay_load:
             self.attn_implementation = getattr(args, 'mm_attn_implementation', 'flash_attention_2')
-            self.load_model(self.args)
         else:
             # uncertain whether flash-attention-2 is supported during inference phase.
             self.attn_implementation = 'sdpa' # 'eager'
             self.cfg_only = Videollama3VisionEncoderConfig.from_pretrained(self.vision_encoder_name)
-
+        self.load_model(self.args)
+        
     def load_model(self, args):
         if self.is_loaded:
             print('Vision tower is already loaded, `load model` call again, skipping.')
