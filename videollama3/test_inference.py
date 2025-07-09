@@ -52,13 +52,14 @@ from videollama3.constants import (
 )
 from videollama3.mm_utils import load_images, load_video, tokenizer_multimodal_token
 from videollama3.model import *
-# from videollama3.videollama3_trainer import (
-#     VideoLLaMA3Trainer,
-#     find_all_linear_names,
-#     get_peft_state_maybe_zero_3,
-#     get_peft_state_non_lora_maybe_zero_3,
-#     safe_save_model_for_hf_trainer,
-# )
+
+from videollama3.videollama3_trainer import (
+    VideoLLaMA3Trainer,
+    find_all_linear_names,
+    get_peft_state_maybe_zero_3,
+    get_peft_state_non_lora_maybe_zero_3,
+    safe_save_model_for_hf_trainer,
+)
 from videollama3.model.processor import Videollama3Processor
 
 # NOTE: fast tokenizer warning issue: https://github.com/huggingface/transformers/issues/5486
@@ -70,7 +71,8 @@ from transformers import AutoModelForCausalLM, AutoProcessor
 
 
 # NOTE: transformers==4.46.3 is recommended for this script
-model_path = "/teamspace/studios/this_studio/VideoLLaMA3/work_dirs/videollama3_qwen2.5_2b/stage_1/"
+
+model_path = "/teamspace/studios/this_studio/VideoLLaMA3/work_dirs/videollama3_qwen2.5_2b/stage_1"
 model = Videollama3Qwen2ForCausalLM.from_pretrained(
     model_path,
     trust_remote_code=True,
@@ -212,7 +214,6 @@ def infer(processor, modal, images, messages):
 # print(infer(conversation))
 
 
-
 # Image conversation
 input = {
     "image": [
@@ -227,6 +228,7 @@ input = {
 }
 modal, images, messages = _convert_normal(input, media_dir)
 print(infer(processor, modal, images, messages))
+
 
 # # Mixed conversation
 # conversation = [
@@ -252,3 +254,4 @@ input = {
 } 
 modal, images, messages = _convert_normal(input, media_dir)
 print(infer(processor, modal, images, messages))
+
