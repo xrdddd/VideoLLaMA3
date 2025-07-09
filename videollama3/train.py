@@ -836,6 +836,7 @@ def train(attn_implementation=None):
     else:
         trainer.train()
     trainer.save_state()
+    vlprocessor.save_pretrained(training_args.output_dir);
 
     model.config.use_cache = True
 
