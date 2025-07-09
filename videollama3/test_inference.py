@@ -157,29 +157,30 @@ def addtion_foo(vlprocessor, modal, data_dict, images):
     video_merge_size = 2 
 
     if modal == "text":
-        unit_size = vlprocessor.image_processor.patch_size**2 * 3
-        data_dict["pixel_values"] = torch.zeros(
-            image_merge_size**2, unit_size
-        )
-        data_dict["grid_sizes"] = torch.as_tensor(
-            [
-                [
-                    1,
-                    image_merge_size,
-                    image_merge_size,
-                ]
-            ]
-        )
-        data_dict["merge_sizes"] = torch.as_tensor(
-            [image_merge_size]
-        )
+        data_dict["pixel_values"] = None
+        # unit_size = vlprocessor.image_processor.patch_size**2 * 3
+        # data_dict["pixel_values"] = torch.zeros(
+        #     image_merge_size**2, unit_size
+        # )
+        # data_dict["grid_sizes"] = torch.as_tensor(
+        #     [
+        #         [
+        #             1,
+        #             image_merge_size,
+        #             image_merge_size,
+        #         ]
+        #     ]
+        # )
+        # data_dict["merge_sizes"] = torch.as_tensor(
+        #     [image_merge_size]
+        # )
     elif modal == "image" or modal == "video":
         assert (
             len(data_dict["pixel_values"]) > 0
             and len(data_dict["grid_sizes"]) > 0
         ), f"Invalid image data: {data_dict['images']}, {data_dict['grid_thws']}"
 
-    data_dict["modals"] = [modal] * len(images)
+    data_dict["modals"] = [modal] * (len(images) if images is not None else 0)
     return data_dict
 
 @torch.inference_mode()
@@ -193,7 +194,7 @@ def infer(processor, modal, images, messages):
     inputs = addtion_foo(processor, modal, inputs, images)
 
     inputs = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
-    if "pixel_values" in inputs:
+    if "pixel_values" in inputs and inputs["pixel_values"] is not None:
         inputs["pixel_values"] = inputs["pixel_values"].to(torch.bfloat16)
     output_ids = model.generate(**inputs, max_new_tokens=1024)
     response = processor.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
@@ -215,19 +216,19 @@ def infer(processor, modal, images, messages):
 
 
 # Image conversation
-input = {
-    "image": [
-        "raw_res/LLaVA-OneVision-Data/image_1.png"
-    ],
-    "conversations": [
-        {
-            "from": "human",
-            "value": "<image>\nProvide a one-sentence caption for the provided image."
-        }
-    ] 
-}
-modal, images, messages = _convert_normal(input, media_dir)
-print(infer(processor, modal, images, messages))
+# input = {
+#     "image": [
+#         "raw_res/LLaVA-OneVision-Data/image_1.png"
+#     ],
+#     "conversations": [
+#         {
+#             "from": "human",
+#             "value": "<image>\nProvide a one-sentence caption for the provided image."
+#         }
+#     ] 
+# }
+# modal, images, messages = _convert_normal(input, media_dir)
+# print(infer(processor, modal, images, messages))
 
 
 # # Mixed conversation
