@@ -32,13 +32,13 @@ RUN_NAME=stage_1
 DATA_DIR=DATASETS/STAGE1
 OUTP_DIR=work_dirs
 
-# python -m debugpy --listen 5680 --wait-for-client -m torch.distributed.run --nnodes $WORLD_SIZE \
+# python -m debugpy --listen 5678 --wait-for-client -m torch.distributed.run --nnodes $WORLD_SIZE \
 #     --nproc_per_node $NPROC_PER_NODE \
 #     --master_addr=$MASTER_ADDR \
 #     --master_port=$MASTER_PORT \
 #     --node_rank $RANK \
 #     videollama3/train.py \
-#     --deepspeed scripts/zero1.json \
+#     --deepspeed scripts/zero3.json \
 #     --model_type videollama3_qwen2 \
 #     --model_path Qwen/Qwen2.5-1.5B-Instruct \
 #     --vision_encoder DAMO-NLP-SG/SigLIP-NaViT \
@@ -49,8 +49,8 @@ OUTP_DIR=work_dirs
 #     --video_merge_size 2 \
 #     --fps 1 \
 #     --max_frames 180 \
-#     --model_max_length 16384 \
-#     --mm_max_length 10240 \
+#     --model_max_length 6000 \
+#     --mm_max_length 6000 \
 #     --bf16 True \
 #     --tf32 False \
 #     --fp16 False \
