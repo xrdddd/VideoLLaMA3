@@ -1,0 +1,32 @@
+[
+    {
+        "image": [
+            "/teamspace/studios/this_studio/raw_res/LLaVA-OneVision-Data/image_0.png"
+        ],
+        "conversations": [
+            {
+                "from": "human",
+                "value": "<image>\nWhat are the colors of the bus in the image?"
+            },
+            {
+                "from": "gpt",
+                "value": "The bus in the image is white and red."
+            }
+        ]
+    },
+    {
+        "image": [
+            "/teamspace/studios/this_studio/raw_res/LLaVA-OneVision-Data/image_1.png"
+        ],
+        "conversations": [
+            {
+                "from": "human",
+                "value": "<image>\nProvide a one-sentence caption for the provided image."
+            },
+            {
+                "from": "gpt",
+                "value": "Poetry books are read on records by Dylan Thomas."
+            }
+        ]
+    }
+]
