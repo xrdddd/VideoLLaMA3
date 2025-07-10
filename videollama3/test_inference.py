@@ -215,22 +215,6 @@ def infer(processor, modal, images, messages):
 # print(infer(conversation))
 
 
-# Image conversation
-# input = {
-#     "image": [
-#         "raw_res/LLaVA-OneVision-Data/image_1.png"
-#     ],
-#     "conversations": [
-#         {
-#             "from": "human",
-#             "value": "<image>\nProvide a one-sentence caption for the provided image."
-#         }
-#     ] 
-# }
-# modal, images, messages = _convert_normal(input, media_dir)
-# print(infer(processor, modal, images, messages))
-
-
 # # Mixed conversation
 # conversation = [
 #     {
@@ -245,14 +229,28 @@ def infer(processor, modal, images, messages):
 # print(infer(conversation))
 
 # Plain text conversation
+# input = {
+#   "conversations": [
+#         {
+#             "from": "human",
+#             "value": "What is the color of bananas?"
+#         }
+#     ] 
+# } 
+# modal, images, messages = _convert_normal(input, media_dir)
+# print(infer(processor, modal, images, messages))
+
+# Image conversation
 input = {
-  "conversations": [
+    "image": [
+        "raw_res/LLaVA-OneVision-Data/image_1.png"
+    ],
+    "conversations": [
         {
             "from": "human",
-            "value": "What is the color of bananas?"
+            "value": "<image>\nProvide a one-sentence caption for the provided image."
         }
     ] 
-} 
+}
 modal, images, messages = _convert_normal(input, media_dir)
 print(infer(processor, modal, images, messages))
-
