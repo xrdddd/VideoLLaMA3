@@ -1,10 +1,10 @@
 import pyarrow.parquet as pq
 import json
 
-src_file = "/Users/peterdou/Downloads/train-00000-of-00005.parquet"
-dst_imgs_dir = "/Users/peterdou/Documents/captioning/LLaVA-OneVision-Data/images"
+src_file = "/teamspace/studios/this_studio/raw_res/LLaVA-OneVision-Data/train-00000-of-00005.parquet"
+dst_imgs_dir = "/teamspace/studios/this_studio/raw_res/LLaVA-OneVision-Data/textcap/images"
 dst_json_file = (
-    "/Users/peterdou/Documents/captioning/LLaVA-OneVision-Data/annotations.json"
+    "/teamspace/studios/this_studio/VideoLLaMA3/DATASETS/STAGE1/annotations.json"
 )
 
 table = pq.read_table(src_file)
@@ -12,7 +12,7 @@ print("table:", table.column_names)
 
 name_pattern = "image_{}.jpg"
 maxnum: int = 0
-MAXNUM = 2  # any limit?
+MAXNUM = -1  # any limit?
 for idx, img_bytes in enumerate(table["image"]):
     maxnum += 1
     if -1 != MAXNUM and maxnum > MAXNUM:
