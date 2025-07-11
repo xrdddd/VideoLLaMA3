@@ -72,7 +72,7 @@ from transformers import AutoModelForCausalLM, AutoProcessor
 
 # NOTE: transformers==4.46.3 is recommended for this script
 
-model_path = "/teamspace/studios/this_studio/VideoLLaMA3/work_dirs/videollama3_qwen2.5_2b/stage_1"
+model_path = "/teamspace/studios/this_studio/VideoLLaMA3/work_dirs/videollama3_qwen2.5_2b/stage_1/checkpoint-16"
 model = Videollama3Qwen2ForCausalLM.from_pretrained(
     model_path,
     trust_remote_code=True,
@@ -243,7 +243,7 @@ def infer(processor, modal, images, messages):
 # Image conversation
 input = {
     "image": [
-        "raw_res/LLaVA-OneVision-Data/image_1.png"
+        "raw_res/LLaVA-OneVision-Data/textcap/images/image_1.jpg"
     ],
     "conversations": [
         {
