@@ -21,8 +21,8 @@ echo "WORLD_SIZE: $WORLD_SIZE"
 echo "NPROC_PER_NODE: $NPROC_PER_NODE"
 
 # Training Arguments
-GLOBAL_BATCH_SIZE=128
-LOCAL_BATCH_SIZE=1
+GLOBAL_BATCH_SIZE=32
+LOCAL_BATCH_SIZE=4
 GRADIENT_ACCUMULATION_STEPS=$[$GLOBAL_BATCH_SIZE/($WORLD_SIZE*$NPROC_PER_NODE*$LOCAL_BATCH_SIZE)]
 echo $GRADIENT_ACCUMULATION_STEPS
 
@@ -30,6 +30,7 @@ echo $GRADIENT_ACCUMULATION_STEPS
 export WANDB_PROJECT=videollama3_qwen2.5_2b
 RUN_NAME=stage_1
 DATA_DIR=DATASETS/STAGE1
+MEDIA_DIR=/teamspace/studios/this_studio/
 OUTP_DIR=work_dirs
 
 # python -m debugpy --listen 5678 --wait-for-client -m torch.distributed.run --nnodes $WORLD_SIZE \
@@ -86,13 +87,13 @@ torchrun --nnodes $WORLD_SIZE \
     --vision_encoder DAMO-NLP-SG/SigLIP-NaViT \
     --mm_projector_type mlp2x_gelu \
     --data_path ${DATA_DIR}/annotations.json \
-    --data_folder ${DATA_DIR} \
+    --data_folder ${MEDIA_DIR} \
     --image_merge_size 1 \
     --video_merge_size 2 \
     --fps 1 \
     --max_frames 180 \
-    --model_max_length 6000 \
-    --mm_max_length 6000 \
+    --model_max_length 1000 \
+    --mm_max_length 1000 \
     --bf16 True \
     --tf32 False \
     --fp16 False \
@@ -103,7 +104,7 @@ torchrun --nnodes $WORLD_SIZE \
     --gradient_accumulation_steps $GRADIENT_ACCUMULATION_STEPS \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 2 \
     --save_total_limit 2 \
     --mm_projector_lr 1e-3 \
     --vision_encoder_lr 1e-5 \

@@ -259,7 +259,6 @@ class LazySupervisedDataset(Dataset):
 
     def _convert_normal(self, data_dict):
         data_folder = self.data_args.data_folder
-        print("data_dict keys:", data_dict.keys())
         conversation = copy.deepcopy(data_dict["conversations"])
 
         # data sanity check and repair
@@ -448,6 +447,7 @@ class LazySupervisedDataset(Dataset):
             print(
                 f"Encounted error when process {i}-th example: {data_dict}, use {backup_idx}-th example instead!!!"
             )
+            
             return self.__getitem__(backup_idx)
 
         return data_dict
@@ -828,7 +828,7 @@ def train(attn_implementation=None):
 
     # select a Trainer
     trainer = VideoLLaMA3Trainer(
-        model=model, tokenizer=tokenizer, args=training_args, **data_module
+        model=model, tokenizer=tokenizer, args=training_args, callbacks=[PrintStepCallback()], **data_module
     )
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
@@ -859,6 +859,11 @@ def train(attn_implementation=None):
             trainer=trainer, output_dir=training_args.output_dir
         )
 
+from transformers import TrainerCallback
+
+class PrintStepCallback(TrainerCallback):
+    def on_step_end(self, args, state, control, **kwargs):
+        print(f"Current step: {state.global_step}")
 
 if __name__ == "__main__":
     train(attn_implementation="sdpa")
