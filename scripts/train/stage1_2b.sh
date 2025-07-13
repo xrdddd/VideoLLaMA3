@@ -45,7 +45,7 @@ OUTP_DIR=work_dirs
 #     --vision_encoder DAMO-NLP-SG/SigLIP-NaViT \
 #     --mm_projector_type mlp2x_gelu \
 #     --data_path ${DATA_DIR}/annotations.json \
-#     --data_folder ${DATA_DIR} \
+#     --data_folder ${MEDIA_DIR} \
 #     --image_merge_size 1 \
 #     --video_merge_size 2 \
 #     --fps 1 \
